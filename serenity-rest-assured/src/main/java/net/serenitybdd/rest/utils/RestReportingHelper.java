@@ -44,11 +44,18 @@ public class RestReportingHelper {
     public RestQuery recordRestSpecificationData(final RestMethod method, final RequestSpecificationDecorated spec,
                                                  final String path, final Object... params) {
         final Map<LogDetail, String> values = new HashMap<>();
+        String myString;
+
         for (final Filter filter : spec.getDefinedFilters()) {
             if (filter instanceof FieldsRecordingFilter) {
                 final FieldsRecordingFilter internal = (FieldsRecordingFilter) filter;
                 values.put(internal.logDetail(), internal.recorded());
             }
+        }
+        if (values.get(LogDetail.HEADERS).contains("Authorization=Bearer")) {
+            myString = "HEADER HAS AUTHORIZATION" + values.get(LogDetail.HEADERS);
+        } else {
+            myString = values.get(LogDetail.HEADERS);
         }
         final RestQuery query = RestQuery.
                 withMethod(method).andPath(ObjectUtils.firstNonNull(values.get(LogDetail.URI).replaceFirst("^Request URI:\t", ""), "")).
@@ -57,8 +64,12 @@ public class RestReportingHelper {
                 ).
                 withContent(firstNonNull(values.get(LogDetail.BODY), "")).
                 withRequestCookies(firstNonNull(values.get(LogDetail.COOKIES), "")).
-                withRequestHeaders(firstNonNull(values.get(LogDetail.HEADERS), ""));
-        return query;
+                withRequestHeaders(firstNonNull(myString, ""));
+                System.out.println("ETHAN WUZ HERE");
+                System.out.println("----------------------------------------------");
+                System.out.println(myString);
+                System.out.println("----------------------------------------------");
+                return query;
     }
 
     public void registerCall(final RestMethod method, final Response response,
