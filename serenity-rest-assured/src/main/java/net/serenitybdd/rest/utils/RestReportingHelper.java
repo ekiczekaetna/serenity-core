@@ -52,11 +52,28 @@ public class RestReportingHelper {
                 values.put(internal.logDetail(), internal.recorded());
             }
         }
+
+        myString = values.get(LogDetail.HEADERS);
+
         if (values.get(LogDetail.HEADERS).contains("Authorization=Bearer")) {
-            myString = "HEADER HAS AUTHORIZATION" + values.get(LogDetail.HEADERS);
-        } else {
-            myString = values.get(LogDetail.HEADERS);
+            String myHeaderLines[] = myString.split("\\r?\\n");
+            String textToSearchFor;
+            for (int i = 0; i < myHeaderLines.length; i++) {
+                textToSearchFor = "Authorization=Bearer ";
+                if (myHeaderLines[i].indexOf(textToSearchFor) != -1) {
+                    myHeaderLines[i] = myHeaderLines[i].substring(0, myHeaderLines[i].indexOf(textToSearchFor)+ textToSearchFor.length()+3) + "*****";
+                }
+
+                textToSearchFor = "x-id-token=";
+                if (myHeaderLines[i].indexOf(textToSearchFor) != -1) {
+                    myHeaderLines[i] = myHeaderLines[i].substring(0,
+                            myHeaderLines[i].indexOf(textToSearchFor) + textToSearchFor.length() + 3) + "*****";
+                }
+
+            }
+            myString = String.join("\n", myHeaderLines);
         }
+
         final RestQuery query = RestQuery.
                 withMethod(method).andPath(ObjectUtils.firstNonNull(values.get(LogDetail.URI).replaceFirst("^Request URI:\t", ""), "")).
                 withContentType(String.valueOf(
