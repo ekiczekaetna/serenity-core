@@ -26,3 +26,5 @@ dependencies {
     }
     testCompile project(':serenity-test-utils')
 }
+
+version '2.1.6'
